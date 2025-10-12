@@ -19,8 +19,6 @@ header#home {
   color: #F0F4F8;
 }
 
-
-
 .hero-content {
   position: relative;
   z-index: 2; /* above particles */
@@ -150,8 +148,16 @@ body {
   background: rgba(27, 38, 49, 0.5);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(165,200,214,0.3);
-  transition: top 0.4s ease-in-out;
+  opacity: 1;
+  transition: top 0.4s ease, opacity 0.4s ease;
 }
+
+#navbar.hidden {
+  top: -20px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
 
 /* NAV LIST (remove flex gap since we use space-around) */
 #navbar ul {
