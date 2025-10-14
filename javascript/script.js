@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavbar();
   setupSmoothScrolling();
   initPixelDust(); 
+  setupProjectSlideshows();
+  setupCarousel();
 
   // --- 2. INTRO MODULE ---
   function setupIntro() {
@@ -18,12 +20,12 @@ document.addEventListener("DOMContentLoaded", () => {
       intro.classList.add("fade-out");
       setTimeout(() => {
         intro.style.display = "none";
-      }, 800);
+      }, 1000);
     };
 
     intro.addEventListener("click", removeIntro);
     window.addEventListener("scroll", removeIntro, { once: true });
-    setTimeout(removeIntro, 4000);
+    setTimeout(removeIntro, 10000);
   }
 
  // --- 2.1 Animated Nodes ---
@@ -119,8 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const roles = ["Programmer", "Software Engineer", "Pixel Artist"];
     let roleIndex = 0;
 
-    const MIN_STANDBY_TIME = 3000;
-    const MAX_STANDBY_TIME = 7000;
+    const MIN_STANDBY_TIME = 500;
+    const MAX_STANDBY_TIME = 1000;
     const MIN_TYPING_SPEED = 50;
     const MAX_TYPING_SPEED = 100;
 
@@ -175,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
           clearInterval(interval);
           // Move to the next role and start scrambling it
           roleIndex = (roleIndex + 1) % roles.length;
-          setTimeout(() => scramble(roles[roleIndex]), 500);
+          setTimeout(() => scramble(roles[roleIndex]), 50);
         }
         i--;
       }, 50);
@@ -228,11 +230,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const resetIdleTimer = () => {
       showNavbar();
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(hideNavbar, 3000);
+      idleTimer = setTimeout(hideNavbar, 1200);
     };
 
     window.addEventListener("scroll", () => {
-      if (window.scrollY > lastScrollY && window.scrollY > 100) {
+      if (window.scrollY < lastScrollY && window.scrollY > 100) {
         hideNavbar();
       } else {
         showNavbar();
@@ -440,3 +442,131 @@ document.addEventListener("DOMContentLoaded", () => {
     animate();
   }
 });
+
+  // --- 7. PROJECT SLIDESHOW MODULE ---
+  // FIX: Moved this function INSIDE the main DOMContentLoaded listener
+  function setupProjectSlideshows() {
+    const projectCards = document.querySelectorAll('.project-card');
+
+    projectCards.forEach(card => {
+      const slides = card.querySelectorAll('.project-slide');
+      const prevBtn = card.querySelector('.prev-btn');
+      const nextBtn = card.querySelector('.next-btn');
+      let currentSlide = 0;
+
+      if (!slides || slides.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        return;
+      }
+
+      const showSlide = (index) => {
+        slides.forEach((slide, i) => {
+          slide.classList.remove('active');
+          if (i === index) {
+            slide.classList.add('active');
+          }
+        });
+      };
+
+      nextBtn.addEventListener('click', () => {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+      });
+
+      prevBtn.addEventListener('click', () => {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+      });
+    });
+  }
+
+// --- 8. GALLERY CAROUSEL MODULE (with Drag Controls) ---
+  function setupCarousel() {
+    const container = document.querySelector('.carousel-container');
+    const carousel = document.querySelector('.carousel');
+    const prevBtn = document.querySelector('.carousel-nav-btn.prev');
+    const nextBtn = document.querySelector('.carousel-nav-btn.next');
+
+    if (!carousel || !prevBtn || !nextBtn || !container) return;
+
+    const totalItems = document.querySelectorAll('.gallery-item').length;
+    if (totalItems === 0) return;
+
+    const anglePerItem = 360 / totalItems;
+    let currentAngle = 0;
+
+    // --- Button Logic ---
+    nextBtn.addEventListener('click', () => {
+      currentAngle -= anglePerItem;
+      updateCarousel();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentAngle += anglePerItem;
+      updateCarousel();
+    });
+
+    // --- Drag Logic ---
+    let isDragging = false;
+    let startX = 0;
+    let startAngle = 0;
+    const dragSensitivity = 0.5; // Tweak this value for faster/slower rotation
+
+    const dragStart = (e) => {
+      isDragging = true;
+      // Use clientX for mouse events, or the first touch point for touch events
+      startX = e.clientX || e.touches[0].clientX;
+      startAngle = currentAngle;
+      container.classList.add('grabbing');
+      // Remove transition for instant feedback during drag
+      carousel.style.transition = 'none'; 
+    };
+
+    const dragMove = (e) => {
+      if (!isDragging) return;
+      // Prevent default browser actions (like scrolling) during a drag
+      e.preventDefault(); 
+      const currentX = e.clientX || e.touches[0].clientX;
+      const deltaX = currentX - startX;
+      // Update the angle based on how far the user has dragged
+      currentAngle = startAngle + (deltaX * dragSensitivity);
+      updateCarousel();
+    };
+
+    const dragEnd = () => {
+      isDragging = false;
+      container.classList.remove('grabbing');
+      // Add the transition back for a smooth "snap"
+      carousel.style.transition = 'transform 1s cubic-bezier(0.77, 0, 0.175, 1)';
+
+      // Snap to the nearest item
+      const closestStep = Math.round(currentAngle / anglePerItem);
+      currentAngle = closestStep * anglePerItem;
+      updateCarousel();
+    };
+
+    // Helper function to apply the rotation
+    const updateCarousel = () => {
+      carousel.style.transform = `rotateY(${currentAngle}deg)`;
+
+      const galleryImages = document.querySelectorAll('.gallery-item img');
+      galleryImages.forEach(img => {
+        img.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+        });
+      });
+    };
+
+    // Mouse Events
+    container.addEventListener('mousedown', dragStart);
+    window.addEventListener('mousemove', dragMove);
+    window.addEventListener('mouseup', dragEnd);
+    // Prevents sticking if the mouse leaves the window
+    container.addEventListener('mouseleave', dragEnd); 
+
+    // Touch Events
+    container.addEventListener('touchstart', dragStart);
+    window.addEventListener('touchmove', dragMove, { passive: false }); // passive: false to allow preventDefault
+    window.addEventListener('touchend', dragEnd);
+  }

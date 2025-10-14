@@ -55,17 +55,109 @@
     <p id="welcome">Welcome to my Portfolio!</p>
     </div>
   </header>
-  
-  <!-- Sections -->
 
   <section id="projects">
-    <h2>Projects</h2>
-    <p>Showcasing my indie game creations 🎮</p>
+    <H2>My Projects</h2>
+    <div class="project-grid">
+      <div class="project-card">
+          <div class="project-image-container">
+            <img src="photo/pd_preview_1.jpeg" alt="CocoSorter View 1" class="project-slide active">
+            <img src="photo/pd_preview_2.jpeg" alt="CocoSorter View 2" class="project-slide">
+            <img src="photo/pd_preview_3.jpeg" alt="CocoSorter View 3" class="project-slide">
+            <img src="photo/pd_preview_4.jpeg" alt="CocoSorter View 4" class="project-slide">
+            <img src="photo/pd_preview_5.jpeg" alt="CocoSorter View 5" class="project-slide">
+            <button class="prev-btn" aria-label="Previous Image">&lt;</button>
+            <button class="next-btn" aria-label="Next image">&gt;</button>
+          </div>
+        <div class="project-content">
+          <h3>CocoSorter</h3>
+          <p>
+           CocoSorter is an automated sorting system using a Raspberry Pi and Arduino. It classifies coconuts by analyzing color for ripeness with a camera and internal water content via audio from a microphone, improving grading consistency and reducing manual labor.
+          </p>
+          <ul class="project-tags">
+            <li>Python</li>
+            <li>Arduino</li>
+            <li>Raspberry Pi</li>
+            <li>Hardware Integration</li>
+            <li>Image Recognition</li>
+            <li>Audio Processing</li>
+          </ul>
+          <div class="project-links">
+            <a href="https://github.com/zim-code1/coco-sorter-code" class="project-link" target="_blank">View Code</a>
+            <a href="#" class="project-link" target="_blank">Video Demo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <img src="photo/KAMADA_preview.png" alt="Screenshot of Project Two">
+        <div class="project-content">
+          <h3>KAMADA: Custom Printing Website</h3>
+          <p>KAMADA is a web platform for a Zamboanga-based custom printing service, allowing users to upload designs for apparel and promotional items. The site's key feature is a real-time order tracking system for customers to monitor their print status.</p>
+          <ul class="project-tags">
+            <li>HTML5 Canvas</li>
+            <li>CSS</li>
+            <li>Javascript</li>
+            <li>Php</li>
+            <li>MySQL</li>
+          </ul>
+          <div class="project-links">
+            <a href="https://kamada-inc.vercel.app/" class="project-link" target="_blank">Visit Website</a>
+
+          </div>
+        </div>  
+      </div>
+
+      <div class="project-card">
+        <img src="photo/wed_preview.jpg" alt="Screenshot of Project Three">
+        <div class="project-content">
+          <h3>Wedding Invitation Site</h3>
+          <p>This is a single-page wedding invitation website featuring key event details. It includes a countdown timer, venue locations with Google Maps links, a gallery, and an RSVP form, creating a simple and elegant digital invitation for guests.</p>
+          <ul class="project-tags">
+            <li>HTML5 Canvas</li>
+            <li>CSS</li>
+            <li>Javascript</li>
+          </ul>
+          <div class="project-links">
+            <a href="https://youareinvitedtowedding.kesug.com/" class="project-link" target="_blank">Visit Website</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <img src="photo/image.jpg" alt="Screenshot of Project Four">
+        <div class="project-content">
+          <h3>TO BE CONTINUED!</h3>
+          <p>anchovies. 🐟</p>
+          <!--
+          <ul class="project-tags">
+            <li>####</li>
+            <li>####</li>
+            <li>####</li>
+          </ul>
+          <div class="project-links">
+            <a href="#" class="project-link" target="_blank">View Code</a>
+          </div>
+          -->
+        </div>
+      </div>
+
+      </div>
   </section>
 
   <section id="gallery">
     <h2>Gallery</h2>
-    <p>Pixel art collection 🖼️</p>
+    
+    <div class="carousel-container">
+      <div class="carousel">
+        <div class="gallery-item"><img src="photo/flower_paintings.png" alt="Pixel Art 1"></div>
+        <div class="gallery-item"><img src="photo/logo.png" alt="Pixel Art 1"></div>
+        <div class="gallery-item"><img src="photo/happy_face.png" alt="Pixel Art 1"></div>
+      </div>
+      <button class="carousel-nav-btn prev" aria-label="Previous image">&lt;</button>
+      <button class="carousel-nav-btn next" aria-label="Next image">&gt;</button>
+    </div>
+
   </section>
 
   <section id="about">
