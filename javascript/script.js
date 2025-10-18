@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initPixelDust(); 
   setupProjectSlideshows();
   setupCarousel();
+  setupAboutSection();
+  setupPhotoStack();
 
   // --- 2. INTRO MODULE ---
   function setupIntro() {
@@ -28,26 +30,37 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(removeIntro, 10000);
   }
 
- // --- 2.1 Animated Nodes ---
+// --- 2.1 Animated Nodes ---
   function setupIntroNodes() {
     const canvas = document.getElementById("node-network-canvas");
-    if (!canvas) return;
+    if (!canvas) return { stop: () => {} }; 
     const ctx = canvas.getContext("2d");
     
+    let animationFrameId;
     const NODE_COUNT = 40;
     const MAX_LINK_DISTANCE = 400;
     const NODE_SPEED = 0.2;
-
     let particles = [];
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      
+      particles = [];
+      for (let i = 0; i < NODE_COUNT; i++) {
+        particles.push(new Particle());
+      }
+    }
 
     class Particle { 
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.15) * NODE_SPEED;
-        this.vy = (Math.random() - 0.15) * NODE_SPEED; 
+        this.x = Math.random() * canvas.clientWidth;
+        this.y = Math.random() * canvas.clientHeight;
+        this.vx = (Math.random() - 0.5) * NODE_SPEED;
+        this.vy = (Math.random() - 0.5) * NODE_SPEED; 
         this.radius = Math.random() * 1.5 + 1;        
       }
 
@@ -55,8 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        // FIX: Boundary check must use clientWidth/Height, not the internal resolution
+        if (this.x < 0 || this.x > canvas.clientWidth) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.clientHeight) this.vy *= -1;
       }
 
       draw() {
@@ -64,13 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(165, 200, 214, 0.8)";
         ctx.fill(); 
-      }
-    }
-    
-    function init() {
-      particles = [];
-      for (let i = 0; i < NODE_COUNT; i++) { 
-        particles.push(new Particle()); 
       }
     }
 
@@ -82,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (distance < MAX_LINK_DISTANCE) {
             const opacity = 1 - (distance / MAX_LINK_DISTANCE);
             ctx.strokeStyle = `rgba(165, 200, 214, ${opacity})`; 
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1 / (window.devicePixelRatio || 1);
             ctx.beginPath();
             ctx.moveTo(particles[a].x, particles[a].y);
             ctx.lineTo(particles[b].x, particles[b].y);
@@ -93,23 +100,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
       particles.forEach(p => {
         p.update();
         p.draw();
       });
       connect();
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     }
 
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      init();
-    });
 
-    init();
+    window.addEventListener("resize", resize);
+
+    resize();
     animate();
+
+    return {
+      stop: () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+      }
+    };
   }
 
 
@@ -441,10 +453,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     animate();
   }
-});
+
 
   // --- 7. PROJECT SLIDESHOW MODULE ---
-  // FIX: Moved this function INSIDE the main DOMContentLoaded listener
   function setupProjectSlideshows() {
     const projectCards = document.querySelectorAll('.project-card');
 
@@ -481,92 +492,217 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-// --- 8. GALLERY CAROUSEL MODULE (with Drag Controls) ---
+// --- 8. GALLERY CAROUSEL MODULE (with Directional Drag) ---
   function setupCarousel() {
+    // This part handles the mobile 2D slider. No changes needed here.
+    if (window.innerWidth <= 768) return;
+
+    // --- The rest of this code is for the DESKTOP 3D carousel ---
     const container = document.querySelector('.carousel-container');
     const carousel = document.querySelector('.carousel');
-    const prevBtn = document.querySelector('.carousel-nav-btn.prev');
-    const nextBtn = document.querySelector('.carousel-nav-btn.next');
-
-    if (!carousel || !prevBtn || !nextBtn || !container) return;
-
-    const totalItems = document.querySelectorAll('.gallery-item').length;
+    const prevBtn = container.querySelector('.carousel-nav-btn.prev');
+    const nextBtn = container.querySelector('.carousel-nav-btn.next');
+    if (!carousel || !prevBtn || !nextBtn) return;
+    
+    const galleryItems = carousel.querySelectorAll('.gallery-item');
+    galleryItems.forEach(item => item.addEventListener('dragstart', e => e.preventDefault()));
+    
+    const totalItems = galleryItems.length;
     if (totalItems === 0) return;
 
     const anglePerItem = 360 / totalItems;
     let currentAngle = 0;
-
-    // --- Button Logic ---
-    nextBtn.addEventListener('click', () => {
-      currentAngle -= anglePerItem;
-      updateCarousel();
-    });
-
-    prevBtn.addEventListener('click', () => {
-      currentAngle += anglePerItem;
-      updateCarousel();
-    });
-
-    // --- Drag Logic ---
-    let isDragging = false;
-    let startX = 0;
-    let startAngle = 0;
-    const dragSensitivity = 0.5; // Tweak this value for faster/slower rotation
+    const updateCarousel = () => { carousel.style.transform = `rotateY(${currentAngle}deg)`; };
+    
+    nextBtn.addEventListener('click', () => { currentAngle -= anglePerItem; updateCarousel(); });
+    prevBtn.addEventListener('click', () => { currentAngle += anglePerItem; updateCarousel(); });
+    
+    let isDragging = false, startX = 0, startY = 0, startAngle = 0;
+    const dragSensitivity = 0.5;
+    // --- NEW: This variable will track if we've "locked" into a horizontal drag ---
+    let isHorizontalDrag = false;
 
     const dragStart = (e) => {
       isDragging = true;
-      // Use clientX for mouse events, or the first touch point for touch events
+      // Record both X and Y starting positions
       startX = e.clientX || e.touches[0].clientX;
+      startY = e.clientY || e.touches[0].clientY;
       startAngle = currentAngle;
       container.classList.add('grabbing');
-      // Remove transition for instant feedback during drag
-      carousel.style.transition = 'none'; 
+      carousel.style.transition = 'none';
+      // Reset the lock
+      isHorizontalDrag = false; 
     };
 
     const dragMove = (e) => {
       if (!isDragging) return;
-      // Prevent default browser actions (like scrolling) during a drag
-      e.preventDefault(); 
+      
       const currentX = e.clientX || e.touches[0].clientX;
-      const deltaX = currentX - startX;
-      // Update the angle based on how far the user has dragged
-      currentAngle = startAngle + (deltaX * dragSensitivity);
-      updateCarousel();
+      const currentY = e.clientY || e.touches[0].clientY;
+      const deltaX = Math.abs(currentX - startX);
+      const deltaY = Math.abs(currentY - startY);
+
+      // --- NEW: Directional Check ---
+      // If we haven't locked a direction yet, check which way the user is dragging
+      if (!isHorizontalDrag) {
+        // If the horizontal movement is greater than the vertical movement...
+        if (deltaX > deltaY + 5) { // The '+ 5' adds a small buffer to prevent accidental locks
+          // ...then lock this drag as a horizontal one.
+          isHorizontalDrag = true;
+        } else if (deltaY > deltaX) {
+          // If it's mostly vertical, do nothing and let the browser scroll.
+          return;
+        }
+      }
+
+      // Only run the drag logic if we're in a confirmed horizontal drag
+      if (isHorizontalDrag) {
+        e.preventDefault(); // This is what locks the page scroll
+        const walk = currentX - startX;
+        currentAngle = startAngle + (walk * dragSensitivity);
+        updateCarousel();
+      }
     };
 
     const dragEnd = () => {
+      if (!isDragging) return;
       isDragging = false;
       container.classList.remove('grabbing');
-      // Add the transition back for a smooth "snap"
       carousel.style.transition = 'transform 1s cubic-bezier(0.77, 0, 0.175, 1)';
-
-      // Snap to the nearest item
-      const closestStep = Math.round(currentAngle / anglePerItem);
-      currentAngle = closestStep * anglePerItem;
-      updateCarousel();
+      
+      // Only snap if we were actually dragging horizontally
+      if (isHorizontalDrag) {
+        currentAngle = Math.round(currentAngle / anglePerItem) * anglePerItem;
+        updateCarousel();
+      }
     };
-
-    // Helper function to apply the rotation
-    const updateCarousel = () => {
-      carousel.style.transform = `rotateY(${currentAngle}deg)`;
-
-      const galleryImages = document.querySelectorAll('.gallery-item img');
-      galleryImages.forEach(img => {
-        img.addEventListener('dragstart', (e) => {
-        e.preventDefault();
-        });
-      });
-    };
-
-    // Mouse Events
+    
     container.addEventListener('mousedown', dragStart);
     window.addEventListener('mousemove', dragMove);
     window.addEventListener('mouseup', dragEnd);
-    // Prevents sticking if the mouse leaves the window
-    container.addEventListener('mouseleave', dragEnd); 
-
-    // Touch Events
-    container.addEventListener('touchstart', dragStart);
-    window.addEventListener('touchmove', dragMove, { passive: false }); // passive: false to allow preventDefault
+    container.addEventListener('mouseleave', dragEnd);
+    container.addEventListener('touchstart', dragStart, { passive: true });
+    window.addEventListener('touchmove', dragMove, { passive: false });
     window.addEventListener('touchend', dragEnd);
   }
+
+  // --- 9. ABOUT SECTION MODULE ---
+  function setupAboutSection() {
+    const bioElement = document.getElementById('bio-typewriter');
+    const terminal = document.querySelector('.terminal-description');
+    const nextButton = document.getElementById('terminal-next-btn');
+    if (!bioElement || !terminal || !nextButton) return;
+
+    // --- The text for the typewriter ---
+    const initialPrompt = "[CLICK TO REVEAL BIO]";
+    const bioText = "I'm Azim, a recent Computer Engineering graduate who combines technical skill with a creative passion for software development and pixel art. I specialize in building unique digital experiences, from interactive web applications to engaging games. I am actively seeking new challenges where I can apply my engineering background to solve problems with elegant and creative code.";
+    const hintText = "\n\n> [SYSTEM_MSG]: Interactive memory archive detected. Click photos to cycle.";
+    
+    // New skills text
+    const skillsCommand = "> ls -l /skills";
+    const skillsOutput = `
+      -rwx-r--r--  1  azim  dev   Python
+      -rwx-r--r--  1  azim  dev   JavaScript
+      -rwx-r--r--  1  azim  dev   HTML & CSS
+      -rwx-r--r--  1  azim  dev   Raspberry Pi
+      -rwx-r--r--  1  azim  dev   Arduino
+      -rwx-r--r--  1  azim  dev   Git & GitHub`;
+    
+    bioElement.textContent = initialPrompt;
+
+    const typeWriterEffect = (element, text, delay = 20, callback) => {
+      let i = 0;
+      const type = () => {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(type, delay);
+        } else if (callback) {
+          callback();
+        }
+      };
+      type();
+    };
+
+    // First click on the terminal to show the bio
+    terminal.addEventListener('click', () => {
+      bioElement.innerHTML = ""; // Clear initial prompt
+      
+      // Type bio, then hint, then show the "Next" button
+      typeWriterEffect(bioElement, bioText, 30, () => {
+        typeWriterEffect(bioElement, hintText, 40, () => {
+          nextButton.classList.remove('hidden'); // Show the button
+        });
+      });
+    }, { once: true });
+
+    // Second click on the "Next" button to show skills
+    nextButton.addEventListener('click', () => {
+      nextButton.classList.add('hidden'); // Hide the button again
+      bioElement.innerHTML = ""; // << THIS IS THE KEY: Clear the text
+
+      // Type the skills command, then the output
+      typeWriterEffect(bioElement, skillsCommand, 50, () => {
+        typeWriterEffect(bioElement, skillsOutput, 20);
+      });
+    }, { once: true });
+  }
+
+  // --- 10. PHOTO STACK MODULE ---
+  function setupPhotoStack() {
+    const container = document.querySelector('.photo-stack-container');
+    if (!container) return;
+
+    let photos = Array.from(container.querySelectorAll('.polaroid-frame'));
+    let isAnimating = false; // Prevents spam-clicking
+
+    const updateStack = () => {
+      photos.forEach((photo, index) => {
+        photo.style.zIndex = photos.length - index;
+        
+        if (index === 0) {
+          // The top photo
+          photo.style.transform = 'rotate(5deg)';
+        } else if (index === 1) {
+          // The middle photo
+          photo.style.transform = 'rotate(-8deg) translateY(-10px)';
+        } else if (index === 2) {
+          // The bottom photo
+          photo.style.transform = 'rotate(10deg) translateY(10px)';
+        }
+      });
+    };
+
+    container.addEventListener('click', () => {
+      // Don't do anything if an animation is already in progress
+      if (isAnimating) return;
+      isAnimating = true;
+
+      // Get the top photo
+      const topPhoto = photos[0];
+      const minRotation = -20;
+      const maxRotation = 45;
+      const randomRotation = Math.random() * (maxRotation - minRotation) + minRotation;
+      
+      // --- This is the new "move to back" animation ---
+      // It moves to the side, shrinks, and loses its high z-index
+      topPhoto.style.transform = `translateX(-110%) rotate(${randomRotation}deg) scale(0.9)`;
+      topPhoto.style.zIndex = -1;
+
+      // After the animation is finished (600ms)...
+      setTimeout(() => {
+        // ...move the top photo to the back of the array...
+        photos.push(photos.shift());
+        
+        // ...and then re-apply the fanned-out styles to the new stack.
+        updateStack();
+        
+        // Allow clicks again
+        isAnimating = false; 
+      }, 600); // This duration MUST match your CSS transition time
+    });
+
+    // Apply the initial styles on page load
+    updateStack();
+  }
+});

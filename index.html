@@ -7,24 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>My Portfolio</title>
-  
-  <!-- Font Awesome Icons -->
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="sprites/logo.png">
-
-  <!-- Custom Styles -->
   <link rel="stylesheet" href="css/style.css">
+
 </head>
     
 <body>
-  <!-- Content goes here -->
   <nav id="navbar">
     <ul id="nav-links">
       <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#gallery">Gallery</a></li>
-      <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
 
@@ -54,7 +51,73 @@
     <span class="intro-text">HI!</span>
     <p id="welcome">Welcome to my Portfolio!</p>
     </div>
+
+    <a href="#about" class="scroll-down-link" aria-label="Scroll to projects">
+      <div class="scroll-down-arrow"></div>
+    </a>
+
   </header>
+
+  <section id="about">
+
+  <h2>About Me</h2>
+
+  <div class="digital-rain-container">
+    <div class="stream">01101001011011100110010101110100</div>
+    <div class="stream">10010110111001100101011101000010</div>
+    <div class="stream">01110010011101010110111001100101</div>
+  </div>
+
+
+  <div class="about-container">
+    <div class="photo-stack-container">
+      <div class="polaroid-frame" id="photo1">
+        <div class="polaroid-image">
+          <img src="photo/portrait/azim_edited_1.webp" alt="A photo of me! In a Business Suit :>">
+        </div>
+        <div class="polaroid-caption">
+          <span>Engr. Muhammad Azim Y. Amil</span>
+        </div>
+      </div>
+
+      <div class="polaroid-frame" id="photo2">
+        <div class="polaroid-image">
+          <img src="photo/portrait/amil_edited.webp" alt="Graduated on May 28, 2025; BS-CpE">
+        </div>
+        <div class="polaroid-caption">
+          <span>Graduation Picture</span>
+        </div>
+      </div>
+
+      <div class="polaroid-frame" id="photo3">
+        <div class="polaroid-image">
+          <img src="photo/portrait/azim_edited_2.webp" alt="Me in a Barong Tagalog.">
+        </div>
+        <div class="polaroid-caption">
+          <span>Formal Attire</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal-description">
+      <div class="terminal-header">
+
+        <span class="terminal-title">~/about_me.txt</span>
+        
+        <div class="terminal-dots">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+        </div>
+      </div>
+      <div class="terminal-body">
+        <p>> <span id="bio-typewriter"></span></p>
+        <button id="terminal-next-btn" class="hidden">Next &gt;</button>
+      </div>
+    </div>
+
+  </div>
+</section>
 
   <section id="projects">
     <H2>My Projects</h2>
@@ -84,7 +147,7 @@
           </ul>
           <div class="project-links">
             <a href="https://github.com/zim-code1/coco-sorter-code" class="project-link" target="_blank">View Code</a>
-            <a href="#" class="project-link" target="_blank">Video Demo</a>
+            <a href="https://www.youtube.com/embed/cmrP3IMOn9s" class="project-link video-button" target="_blank">Video Demo</a>
           </div>
         </div>
       </div>
@@ -92,7 +155,7 @@
       <div class="project-card">
         <img src="photo/KAMADA_preview.png" alt="Screenshot of Project Two">
         <div class="project-content">
-          <h3>KAMADA: Custom Printing Website</h3>
+          <h3>KAMADA: Printing Website</h3>
           <p>KAMADA is a web platform for a Zamboanga-based custom printing service, allowing users to upload designs for apparel and promotional items. The site's key feature is a real-time order tracking system for customers to monitor their print status.</p>
           <ul class="project-tags">
             <li>HTML5 Canvas</li>
@@ -160,21 +223,25 @@
 
   </section>
 
-  <section id="about">
-    <h2>About Me</h2>
-    <p>A little story about who I am...</p>
-  </section>
-
   <section id="contact">
-    <h2>Contact</h2>
-    <p>Email me at <a href="mailto:zim@example.com">zim@example.com</a></p>
-  </section>
+  <h2>Get In Touch</h2>
+  <p class="contact-subtitle">
+    I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+  </p>
+  <a href="mailto:zim@example.com" class="contact-button">Say Hello</a>
+  
+  <div class="social-links">
+    <a href="https://github.com/zim-code1" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/muhammad-azim-amil-6321a9379/" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+    <a href="https://www.instagram.com/azimthegreatahh/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.facebook.com/Ezaruzim" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+  </div>
+</section>
 
   <footer>
     <p>© 2025 Zim</p>
   </footer>
 
-  <!-- Javascript -->
   <script src="javascript/script.js" defer></script>
 </body>
 
