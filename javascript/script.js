@@ -494,10 +494,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- 8. GALLERY CAROUSEL MODULE (with Directional Drag) ---
   function setupCarousel() {
-    // This part handles the mobile 2D slider. No changes needed here.
     if (window.innerWidth <= 768) return;
 
-    // --- The rest of this code is for the DESKTOP 3D carousel ---
     const container = document.querySelector('.carousel-container');
     const carousel = document.querySelector('.carousel');
     const prevBtn = container.querySelector('.carousel-nav-btn.prev');
@@ -519,7 +517,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let isDragging = false, startX = 0, startY = 0, startAngle = 0;
     const dragSensitivity = 0.5;
-    // --- NEW: This variable will track if we've "locked" into a horizontal drag ---
     let isHorizontalDrag = false;
 
     const dragStart = (e) => {
@@ -542,8 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const deltaX = Math.abs(currentX - startX);
       const deltaY = Math.abs(currentY - startY);
 
-      // --- NEW: Directional Check ---
-      // If we haven't locked a direction yet, check which way the user is dragging
+      // check which way the user is dragging
       if (!isHorizontalDrag) {
         // If the horizontal movement is greater than the vertical movement...
         if (deltaX > deltaY + 5) { // The '+ 5' adds a small buffer to prevent accidental locks
@@ -599,17 +595,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const hintText = "\n\n> [SYSTEM_MSG]: Interactive memory archive detected. Click photos to cycle.";
     
     // New skills text
-    const skillsCommand = "> ls -l /skills";
+    const skillsCommand = " ls -l /skills"; // Added newlines for spacing
     const skillsOutput = `
-      -rwx-r--r--  1  azim  dev   Python
-      -rwx-r--r--  1  azim  dev   JavaScript
-      -rwx-r--r--  1  azim  dev   HTML & CSS
-      -rwx-r--r--  1  azim  dev   Raspberry Pi
-      -rwx-r--r--  1  azim  dev   Arduino
-      -rwx-r--r--  1  azim  dev   Git & GitHub`;
+      -rwx-r--r--  1  zim  dev   Python
+      -rwx-r--r--  1  zim  dev   JavaScript
+      -rwx-r--r--  1  zim  dev   HTML & CSS
+      -rwx-r--r--  1  zim  dev   Raspberry Pi
+      -rwx-r--r--  1  zim  dev   Arduino
+      -rwx-r--r--  1  zim  dev   Git & GitHub;
+      -rwx-r--r--  1  zim  dev   C#
+      
+      bash: `;
     
+    // Set the initial, non-animated prompt text
     bioElement.textContent = initialPrompt;
 
+    // THIS IS THE FIX: The clear (element.innerHTML = "") is removed from here
     const typeWriterEffect = (element, text, delay = 20, callback) => {
       let i = 0;
       const type = () => {
@@ -634,12 +635,12 @@ document.addEventListener("DOMContentLoaded", () => {
           nextButton.classList.remove('hidden'); // Show the button
         });
       });
-    }, { once: true });
+    }, { once: true }); // This makes the event listener self-destruct after one click.
 
     // Second click on the "Next" button to show skills
     nextButton.addEventListener('click', () => {
       nextButton.classList.add('hidden'); // Hide the button again
-      bioElement.innerHTML = ""; // << THIS IS THE KEY: Clear the text
+      bioElement.innerHTML = ""; // << THIS IS THE KEY: Clear the bio/hint text
 
       // Type the skills command, then the output
       typeWriterEffect(bioElement, skillsCommand, 50, () => {
@@ -647,7 +648,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }, { once: true });
   }
-
   // --- 10. PHOTO STACK MODULE ---
   function setupPhotoStack() {
     const container = document.querySelector('.photo-stack-container');
@@ -684,8 +684,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const maxRotation = 45;
       const randomRotation = Math.random() * (maxRotation - minRotation) + minRotation;
       
-      // --- This is the new "move to back" animation ---
-      // It moves to the side, shrinks, and loses its high z-index
       topPhoto.style.transform = `translateX(-110%) rotate(${randomRotation}deg) scale(0.9)`;
       topPhoto.style.zIndex = -1;
 
@@ -702,7 +700,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 600); // This duration MUST match your CSS transition time
     });
 
-    // Apply the initial styles on page load
     updateStack();
   }
 });

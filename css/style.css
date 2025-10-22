@@ -742,6 +742,16 @@ section#gallery h2 {
 
 /* --- MEDIA QUERIES --- */
 
+@media (max-width: 900px) {
+  .terminal-description,
+  .photo-stack-container {
+    width: 100%;
+    max-width: 450px;
+  }
+}
+
+
+
 @media (max-width: 768px) {
   /* --- Mobile Nav & General --- */
   .intro-text { font-size: 3rem; }
@@ -961,6 +971,7 @@ section#about h2 {
   border-radius: 8px;
   box-shadow: 0 0 25px rgba(65, 90, 119, 0.2);
   backdrop-filter: blur(5px);
+  transition: all 0.4 ease-in-out;
 }
 
 .terminal-header {
@@ -1003,6 +1014,7 @@ section#about h2 {
   min-height: 200px;
   white-space: pre-wrap;
   position: relative;
+  margin: 0;
 }
 
 #terminal-next-btn {
