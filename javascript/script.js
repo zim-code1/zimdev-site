@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   
+  try {
   // --- 1. INITIALIZATION ---
   setupIntro();
   setupIntroNodes();
@@ -11,6 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCarousel();
   setupAboutSection();
   setupPhotoStack();
+
+  } catch (e) {
+    console.error("Script.js is crashed:", e)
+  }
 
   // --- 2. INTRO MODULE ---
   function setupIntro() {
@@ -603,7 +608,7 @@ document.addEventListener("DOMContentLoaded", () => {
       -rwx-r--r--  1  zim  dev   Raspberry Pi
       -rwx-r--r--  1  zim  dev   Arduino
       -rwx-r--r--  1  zim  dev   Git & GitHub;
-      -rwx-r--r--  1  zim  dev   C#
+      -rwx-r--r--  1  zim  dev   Vue.js
       
       bash: `;
     
@@ -640,7 +645,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Second click on the "Next" button to show skills
     nextButton.addEventListener('click', () => {
       nextButton.classList.add('hidden'); // Hide the button again
-      bioElement.innerHTML = ""; // << THIS IS THE KEY: Clear the bio/hint text
+      bioElement.innerHTML = "";
 
       // Type the skills command, then the output
       typeWriterEffect(bioElement, skillsCommand, 50, () => {
@@ -674,11 +679,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     container.addEventListener('click', () => {
-      // Don't do anything if an animation is already in progress
       if (isAnimating) return;
       isAnimating = true;
 
-      // Get the top photo
       const topPhoto = photos[0];
       const minRotation = -20;
       const maxRotation = 45;
@@ -687,17 +690,13 @@ document.addEventListener("DOMContentLoaded", () => {
       topPhoto.style.transform = `translateX(-110%) rotate(${randomRotation}deg) scale(0.9)`;
       topPhoto.style.zIndex = -1;
 
-      // After the animation is finished (600ms)...
       setTimeout(() => {
-        // ...move the top photo to the back of the array...
         photos.push(photos.shift());
         
-        // ...and then re-apply the fanned-out styles to the new stack.
         updateStack();
         
-        // Allow clicks again
         isAnimating = false; 
-      }, 600); // This duration MUST match your CSS transition time
+      }, 600); 
     });
 
     updateStack();
